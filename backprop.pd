@@ -1,0 +1,141 @@
+# load input data and target data
+[inlet]
+|
+[expr~ 1 1]
+|
+[tabread~ inputs]
+
+[inlet]
+|
+[expr~ 1 1]
+|
+[tabread~ targets]
+
+# initialize network weights and biases
+[expr initialize_weights($f1) hidden_weights_1(
+[expr initialize_biases($f1) hidden_bias_1(
+[expr initialize_weights($f1) hidden_weights_2(
+[expr initialize_biases($f1) hidden_bias_2(
+[expr initialize_weights($f1) output_weights(
+[expr initialize_biases($f1) output_bias(
+
+# calculate forward pass through network
+[expr~ 1 1]
+|
+[tabread~ hidden_weights_1]
+|
+[expr~ 1 1]
+|
+[tabread~ hidden_bias_1]
+|
+[expr~ 1 1]
+|
+[relu~]
+|
+[tabwrite~ hidden_outputs_1]
+
+[expr~ 1 1]
+|
+[tabread~ hidden_weights_2]
+|
+[expr~ 1 1]
+|
+[tabread~ hidden_bias_2]
+|
+[expr~ 1 1]
+|
+[relu~]
+|
+[tabwrite~ hidden_outputs_2]
+
+[expr~ 1 1]
+|
+[tabread~ output_weights]
+|
+[expr~ 1 1]
+|
+[tabread~ output_bias]
+|
+[expr~ 1 1]
+|
+[softmax~]
+|
+[tabwrite~ outputs]
+
+# calculate loss
+[expr~ 1 1]
+|
+[tabread~ targets]
+|
+[expr~ -1]
+|
+[tabread~ outputs]
+|
+[expr~ cross_entropy($f1, $f2)]
+|
+[tabwrite~ loss]
+
+# calculate gradients
+[expr~ 1 1]
+|
+[tabread~ targets]
+|
+[expr~ -1]
+|
+[tabread~ outputs]
+|
+[expr~ softmax_cross_entropy_gradient($f1, $f2)]
+|
+[tabwrite~ output_error]
+
+[tabread~ output_weights]
+|
+[expr~ -1]
+|
+[tabread~ output_error]
+|
+[expr~ $f1 * $f2]
+|
+[tabwrite~ output_grad]
+
+[tabread~ output_error]
+|
+[expr~ -1]
+|
+[tabread~ output_weights]
+|
+[expr~ $f1 * $f2]
+|
+[expr~ relu_gradient($f3) $f4 $f5 $f6]
+|
+[tabwrite~ hidden_error_2]
+
+[tabread~ hidden_weights_2]
+|
+[expr~ -1]
+|
+[tabread~ hidden_outputs_2]
+|
+[expr~ $f1 * $f2]
+|
+[tabwrite~ hidden_grad_2]
+
+[tabread~ hidden_error_2]
+|
+[expr~ -1]
+|
+[tabread~ hidden_weights_2]
+|
+[expr~ $f1 * $f2]
+|
+[expr~ relu_gradient($f3) $f4 $f5 $f6]
+|
+[tabwrite~ hidden_error_1]
+
+[tabread~ hidden_weights_1]
+|
+[expr~ -1]
+|
+[tabread~ hidden_outputs_1]
+|
+[expr~ $f1
